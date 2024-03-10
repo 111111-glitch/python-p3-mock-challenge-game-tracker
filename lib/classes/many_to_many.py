@@ -1,34 +1,62 @@
 class Game:
     def __init__(self, title):
-        self.title = title
+        self._title = title
+
+    @property
+    def title(self):
+        return self._title
 
     def results(self):
-        pass
+        return [result for result in Result.all if result.game == self]
 
     def players(self):
-        pass
+        return list({result.player for result in self.results()})
 
     def average_score(self, player):
-        pass
+        player_results = [result for result in self.results() if result.player == player]
+        if not player_results:
+            return 0
+        return sum(result.score for result in player_results) / len(player_results)
+
 
 class Player:
     def __init__(self, username):
-        self.username = username
+        self._username = username
+
+    @property
+    def username(self):
+        return self._username
+
+    @username.setter
+    def username(self, value):
+        if not isinstance(value, str):
+            raise ValueError("Username must be a string")
+        if not 2 <= len(value) <= 16:
+            raise ValueError("Username must be between 2 and 16 characters")
+        self._username = value
 
     def results(self):
-        pass
+        return [result for result in Result.all if result.player == self]
 
     def games_played(self):
-        pass
+        return list({result.game for result in self.results()})
 
     def played_game(self, game):
-        pass
+        return any(result.game == game for result in self.results())
 
     def num_times_played(self, game):
-        pass
+        return sum(1 for result in self.results() if result.game == game)
+
 
 class Result:
+    all = []
+
     def __init__(self, player, game, score):
         self.player = player
         self.game = game
-        self.score = score
+        self._score = score
+        Result.all.append(self)
+
+    @property
+    def score(self):
+        return self._score
